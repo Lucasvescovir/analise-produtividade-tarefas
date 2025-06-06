@@ -1,0 +1,72 @@
+import pandas as pd
+import numpy as np
+
+# Dados simulados de projetos/tarefas por equipe e membro
+dados_produtividade = {
+    'ID_Tarefa': range(101, 121),
+    'Nome_Membro': ['João', 'Maria', 'Pedro', 'Ana', 'Carlos', 'Mariana', 'Fernando', 'Isabela', 'Gustavo', 'Laura',
+                    'João', 'Maria', 'Ana', 'Carlos', 'Mariana', 'Fernando', 'Isabela', 'Gustavo', 'Laura', 'Pedro'],
+    'Equipe': ['Desenvolvimento', 'Marketing', 'Vendas', 'RH', 'Desenvolvimento', 'Marketing', 'Vendas', 'RH', 'Desenvolvimento', 'Vendas',
+               'Desenvolvimento', 'Marketing', 'RH', 'Desenvolvimento', 'Marketing', 'Vendas', 'RH', 'Desenvolvimento', 'Vendas', 'Vendas'],
+    'Status': ['Concluída', 'Concluída', 'Em Andamento', 'Concluída', 'Concluída', 'Em Andamento', 'Concluída', 'Pendente', 'Concluída', 'Concluída',
+               'Concluída', 'Concluída', 'Em Andamento', 'Concluída', 'Concluída', 'Pendente', 'Concluída', 'Concluída', 'Em Andamento', 'Concluída'],
+    'Horas_Estimadas': np.random.randint(5, 20, size=20), # Horas estimadas para a tarefa
+    'Horas_Gastas': np.random.randint(5, 25, size=20),    # Horas reais gastas na tarefa
+    'Prioridade': np.random.choice(['Alta', 'Média', 'Baixa'], size=20, p=[0.3, 0.5, 0.2]) # Prioridade da tarefa
+}
+
+df_produtividade = pd.DataFrame(dados_produtividade)
+
+print("--- DataFrame de Produtividade ---")
+print(df_produtividade)
+print("\n")
+
+total_tarefas = df_produtividade.groupby('Equipe')['Status'].count()
+print('\nContagem total de tarefas por equipes:')
+print(total_tarefas)
+
+media_horas_gastas = df_produtividade.groupby('Equipe')['Horas_Gastas'].mean()
+print('\nMédia de horas gastas por equipes:')
+print(media_horas_gastas)
+
+media_horas_estimadas = df_produtividade.groupby('Equipe')['Horas_Estimadas'].mean()
+print('\nMédia de horas estimadas por equipes:')
+print(media_horas_estimadas)
+
+df_produtividade['Diferenca_Horas'] = df_produtividade['Horas_Gastas'] - df_produtividade['Horas_Estimadas']
+
+media_diferenca_horas = df_produtividade.groupby('Equipe')['Diferenca_Horas'].mean()
+print('\nMédia de diferenças de horas por equipes:')
+print(media_diferenca_horas)
+
+mapeamento_prioridade = {'Baixa': 1, 'Média': 2, 'Alta': 3}
+df_produtividade['Prioridade_Num'] = df_produtividade['Prioridade'].map(mapeamento_prioridade)
+
+
+pendente = df_produtividade['Status'] == 'Pendente'
+em_andamento = df_produtividade['Status'] == 'Em Andamento'
+df_filtro_pendente = df_produtividade[pendente]
+print('\nDataFrame das tarefas que ainda estão pendentes:')
+print(df_filtro_pendente)
+
+df_filtro_andamento = df_produtividade[em_andamento]
+print('\nDataFrame das tarefas que ainda estão em andamento:')
+print(df_filtro_andamento)
+
+
+total_pendentes = df_filtro_pendente.groupby('Equipe')['Status'].count()
+print('\nTotal de tarefas pendentes por equipes:')
+print(total_pendentes)
+
+total_andamento = df_filtro_andamento.groupby('Equipe')['Status'].count()
+print('\nTotal de tarefas em andamento por equipes:')
+print(total_andamento)
+
+
+prioridade_pendente = df_filtro_pendente.groupby('Equipe')["Prioridade_Num"].mean()
+print('\nMédia de prioridade das tarefas pendentes por equipes:')
+print(prioridade_pendente)
+
+prioridade_andamento = df_filtro_andamento.groupby('Equipe')["Prioridade_Num"].mean()
+print('\nMédia de prioridade das tarefas em andamento por equipes:')
+print(prioridade_andamento)
